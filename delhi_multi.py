@@ -200,6 +200,7 @@ def clean_parties(parties):
 
 
 def process_case_set(case_set):
+    fails = 0
     court_code = case_set['court_no']
     cases = case_set['cases']
     court = case_set['court']
@@ -207,11 +208,21 @@ def process_case_set(case_set):
     dist_code = case_set['dist_code']
     disp = case_set['disp']
     current_record = 0
-
+    new_flag = True
     filename = f"output/{court}_{disp}.csv"
-    csv_file = open(filename,'w', encoding='utf-8', newline='')
+
+    processed_cases = []
+    if glob.glob(filename):
+        with open(filename, 'r') as f:
+            csv_reader = csv.reader(f)
+            csv_reader = csv.reader(f)
+            x = list(csv_reader)
+            processed_cases.extend([c[2] for c in x])
+            new_flag = False
+            
+    csv_file = open(filename,'a', encoding='utf-8', newline='')
     csvwriter = csv.writer(csv_file)
-    if current_record == 0:
+    if current_record == 0 and new_flag:
         fields = ['P1','R1', "CINO", 'Filing Number', 'Filing Year', 'Filing Date', 'Registration Year','Registration Date', 'Stage','Disposed Date', 'Disposed Year', 'Disposal Reason', 'Doc 1 Name', 'Doc 1 Link', 'Doc 2 Name', 'Doc 2 Link', 'Court']
         csvwriter.writerow(fields) 
     
@@ -220,6 +231,9 @@ def process_case_set(case_set):
         print(f"Processing case {current_record}", end='\r')
         cino = cases[x]['cino']
         case_no = cases[x]['case_no']
+        if cino in processed_cases:
+            continue
+
         #print(current_record, cino, case_no)
         for i in range(5):
             try:
