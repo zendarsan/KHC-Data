@@ -238,7 +238,7 @@ def process_case_set(case_set):
         for i in range(5):
             try:
                 page, downloaded = get_case_deets(cino, case_no, court_code, state_code, dist_code)
-                soup = BeautifulSoup(page)
+                soup = BeautifulSoup(page, 'html.parser')
                 break
             except Exception as e:
                 time.sleep(0.5+i)
@@ -316,7 +316,7 @@ if __name__ == '__main__':
                     'dist_code': x['distCode'],
                     'disp': disp
                 })
-    with mp.Pool(processes=4) as pool:
+    with mp.Pool(processes=6) as pool:
         parsed = pool.map(process_case_set, all_cases)
     print(parsed)
     
