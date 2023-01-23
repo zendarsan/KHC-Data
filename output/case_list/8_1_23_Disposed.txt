@@ -1,0 +1,1 @@
+{"con": [null], "totRecords": 0, "cntEst2": 1, "courtNameArr": ["Metropolitan Magistrate, Juvenile Justice Board, Dongari, Mumbai"], "court_code": ["8"], "totEstCnt": [0], "normalVArr": ["1"], "hide_partyname_est": [""], "Error": "", "stateCode": "1", "distCode": "23"}

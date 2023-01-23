@@ -210,6 +210,7 @@ def process_case_set(case_set):
     current_record = 0
     new_flag = True
     filename = f"output/{court}_{disp}.csv"
+    print(f"Current set has {len(cases)} cases to process")
 
     processed_cases = []
     if glob.glob(filename):
@@ -227,8 +228,7 @@ def process_case_set(case_set):
         csvwriter.writerow(fields) 
     
     for x in range(current_record, len(cases)):
-        time.sleep(0.25)
-        print(f"Processing case {current_record}", end='\r')
+        
         cino = cases[x]['cino']
         case_no = cases[x]['case_no']
         if cino in processed_cases:
@@ -316,6 +316,11 @@ if __name__ == '__main__':
                     'dist_code': x['distCode'],
                     'disp': disp
                 })
+    count = 0
+    for cases in all_cases:
+        count+=len(cases)
+    print(f"Processing {count} cases total")
+
     with mp.Pool(processes=6) as pool:
         parsed = pool.map(process_case_set, all_cases)
     print(parsed)
