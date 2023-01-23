@@ -223,7 +223,7 @@ def process_case_set(case_set):
     csv_file = open(filename,'a', encoding='utf-8', newline='')
     csvwriter = csv.writer(csv_file)
     if current_record == 0 and new_flag:
-        fields = ['P1','R1', "CINO", 'Filing Number', 'Filing Year', 'Filing Date', 'Registration Year','Registration Date', 'Stage','Disposed Date', 'Disposed Year', 'Disposal Reason', 'Doc 1 Name', 'Doc 1 Link', 'Doc 2 Name', 'Doc 2 Link', 'Court']
+        fields = ['P1','R1', "CINO", 'Filing Number', 'Filing Year', 'Filing Date', 'Registration Year','Registration Date', 'Stage','Disposed Date', 'Disposed Year', 'Disposal Reason', 'Court', 'Doc 1 Name', 'Doc 1 Link', 'Doc 2 Name', 'Doc 2 Link', ]
         csvwriter.writerow(fields) 
     
     for x in range(current_record, len(cases)):
@@ -251,7 +251,7 @@ def process_case_set(case_set):
         
         try:
             row = process(soup, cino)
-            
+            row.append(court)
             orders = soup.select("table.order_table tr")[1:]
             if len(orders) == 0:
                 orders = []
@@ -276,7 +276,7 @@ def process_case_set(case_set):
                 if doc.headers['Content-Type'] == 'application/pdf':
                     with open(order_name, 'wb') as f:      
                         f.write(doc.content)
-                        file_name = f'=hyperlink("{order_name}")'
+                        file_name = f'=hyperlink("orders/{row[3]} of {row[4]}_{name.title()}_{cino}_{index}.pdf")'
                         row.extend([name, file_name])
                         
                 else:
@@ -285,7 +285,7 @@ def process_case_set(case_set):
             fails+=1    
 
         if row != 0:
-            row.append(court)
+            
             csvwriter.writerow(row)
                 
         current_record+=1
