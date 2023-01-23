@@ -1,4 +1,5 @@
 output/*.csv
 output/orders/*.pdf
+output/completed
 completed
 env/

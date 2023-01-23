@@ -1,0 +1,1 @@
+{"con": [null], "totRecords": 0, "cntEst2": 1, "courtNameArr": ["Civil court Junior Divison , Bhiwandi"], "court_code": ["6"], "totEstCnt": [0], "normalVArr": ["1"], "hide_partyname_est": [""], "Error": "", "stateCode": "1", "distCode": "21"}

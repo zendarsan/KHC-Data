@@ -296,11 +296,11 @@ def process_case_set(case_set):
 
 
 if __name__ == '__main__':
-    all_files = glob.glob("*.txt")
+    all_files = glob.glob("output/case_list/*.txt")
     all_cases = []
     for file in all_files:
         with open(file, 'r') as f:
-            if '_d' in file:
+            if '_Disp' in file:
                 disp="disposed"
             else:
                 disp="pending"
