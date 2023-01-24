@@ -1,0 +1,1 @@
+{"con": [null], "totRecords": 0, "cntEst2": 1, "courtNameArr": ["District and Addl. Sessions Judge, Panvel, Dist., Raigad"], "court_code": ["17"], "totEstCnt": [0], "normalVArr": ["0"], "hide_partyname_est": ["N"], "Error": "", "stateCode": "1", "distCode": "24"}

@@ -1,0 +1,1 @@
+{"con": [null], "totRecords": 0, "cntEst2": 1, "courtNameArr": ["Civil Judge, J.D. and J.M.F.C., Roha"], "court_code": ["9"], "totEstCnt": [0], "normalVArr": ["1"], "hide_partyname_est": ["N"], "Error": "", "stateCode": "1", "distCode": "24"}
