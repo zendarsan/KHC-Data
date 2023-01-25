@@ -209,6 +209,7 @@ def process_case_set(case_set):
     disp = case_set['disp']
     section = case_set['section']
     counter = case_set['counter']
+    current_record = 0
     print(f"Starting {court}, {len(cases)} pending, {fails} failed so far. Set {current_set} of {len(all_cases)}")
 
     filename = f"saloni/{section}_{counter}.csv"
@@ -297,11 +298,6 @@ def process_case_set(case_set):
 
         current_record+=1
     print(f"Processed {current_record} cases")
-    csv_file.close()
-    current_record = 0
-    current_set = current_set+1
-    
-
     csv_file.close()
     print(f"Completed {court}, {len(cases)} processed.")
     return(f"Completed {court}, {len(cases)} processed.")
