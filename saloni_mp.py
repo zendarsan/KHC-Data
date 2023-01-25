@@ -14,9 +14,10 @@ current_set = 0
 fails = 0
 
 
+s = requests.Session()
+cookie = 'PHPSESSID=c8hcufru9lt9puq06ct3map455'
 def get_case_deets(cino, case_no, court_no, state_code, dist_code):
-    s = requests.Session()
-    cookie = 'PHPSESSID=c8hcufru9lt9puq06ct3map455'
+    
     headers = {
         'Connection': 'keep-alive',
         'sec-ch-ua': '" Not;A Brand";v="99", "Microsoft Edge";v="97", "Chromium";v="97"',
@@ -49,8 +50,6 @@ def get_case_deets(cino, case_no, court_no, state_code, dist_code):
     return (response.content, 0)
 
 def get_case_document(link):
-    s = requests.Session()
-    cookie = 'PHPSESSID=c8hcufru9lt9puq06ct3map455'
 
     headers = {
         'Connection': 'keep-alive',
@@ -106,7 +105,6 @@ def process(soup, cino):
     if statute == 'History of Case Hearing':
         statute = " "
         provision = " "
-    
     try:
         first_hearing = deets[0][14].split(": ")[1]
     except IndexError:
@@ -119,6 +117,7 @@ def process(soup, cino):
     #print(party_subview)
     p_advocate, p_length, p1, p2, p3, p4, *_ = clean_parties(party_subview[0])
     r_advocate, r_length, r1, r2, r3, r4, *_ = clean_parties(party_subview[1])
+
     
 
     try:
@@ -133,9 +132,50 @@ def process(soup, cino):
         order_link = soup.select("#secondpage > div:nth-child(13) > table.order_table > tbody > tr:nth-child(2) > td:nth-child(4) > a")['href']
     except:
         order_link = " "
+    try:
+        acts = soup.select("table#act_table tr")[1:]
+        provisions = ""
+        for act in acts:
+            
+            title = act.select("td")[0].get_text()
+            sections = act.select("td")[1].get_text()
+            if "-" in sections:
+                continue
+            else:
+                sections = sections.replace(",", " ")
+                string = f"{title}: {sections}; "
+                provisions+=string
 
-    rows = [p1,r1, cino, filing_number, filing_year, filing_date, registration_year, registration_date, stage, disposed_date, disposed_year, disposed_reason, order_link,]
+    except IndexError as e:
+        provisions = "N/A"
+        raise e
 
+    FIR_details = soup.select("span.FIR_details_table label")
+    try:    
+        if FIR_details:
+            station = FIR_details[0].get_text()
+            fir_number = FIR_details[1].get_text()
+            fir_year = FIR_details[2].get_text()
+        else:
+            station, fir_number, fir_year = ("N/A","N/A","N/A")
+    except IndexError as e:
+        
+        station, fir_number, fir_year = ("N/A","N/A","N/A")
+
+    try:
+        case_type = soup.select(".case_details_table")[0].get_text()
+        case_type = case_type.split(":")[-1].strip()
+    except IndexError as e:
+        case_type = ""
+        raise e
+    
+    if p_length > 1:
+        p1 += " & Ors."
+    if r_length > 1:
+        r1 += " & Ors."
+    rows = [p1,r1, str(p_length), str(r_length), cino, case_type, filing_number, filing_year, filing_date, registration_number, registration_year, registration_date, fir_number, station, fir_year, provisions, stage, disposed_date, disposed_year, disposed_reason,]
+    rows = [x.replace(":\xa0", "") for x in rows]
+    #print(rows)
     return rows
 
 def print_all(soup):
@@ -197,6 +237,8 @@ def clean_parties(parties):
         clean_parties.append(" ")
 
     return clean_parties
+
+
 
 
 def process_case_set(case_set):
@@ -292,9 +334,10 @@ def process_case_set(case_set):
                 csvwriter.writerow(row)
         except Exception as e:      
             fails+=1    
+            print("FAILED", e)
             with open(f"{current_record}.html", 'w', encoding='utf-8') as f:
                 f.write(str(soup))
-            raise(e)
+            
 
         current_record+=1
     print(f"Processed {current_record} cases")
