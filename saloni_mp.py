@@ -11,6 +11,7 @@ import multiprocessing as mp
 import pdfplumber
 import io
 import traceback
+import unicodedata
 current_record = 0
 current_set = 0
 fails = 0
@@ -297,7 +298,7 @@ def process_case_set(case_set):
                 if not details:
                     continue
                 name = details[-1]
-                
+
                 query = order.select('a')
                 if query:
                     query = query[0]['href'].replace("  ", '%20')
@@ -322,10 +323,11 @@ def process_case_set(case_set):
                         paras = paras.replace("\n", " ")
                         line = re.findall("[^.?!]*(?<=[.?\s!])DNA(?=[\s.?!])[^.?!]*[.?!]", paras)
                         if line:
+                            line = unicodedata.normalize("NFKD", "|".join(line))
                             print(f"DNA FOUND, {line}")
                             with open(order_name, 'wb') as f:      
                                 f.write(doc.content)
-                                file_name = f'=hyperlink("{order_name}", {"|".join(line)})'
+                                file_name = f'=hyperlink("{order_name}", {line})'
                                 row.extend([name, file_name])
                         else:
                             with open(f"saloni/extras/{row[3]} of {row[4]}_{name.title()}_{cino}_{index}.pdf", 'wb') as f:      
@@ -342,7 +344,7 @@ def process_case_set(case_set):
         except Exception as e:      
             fails+=1    
             print("FAILED", traceback.format_exc(), '\n',row)
-            with open(f"{current_record}.html", 'w', encoding='utf-8') as f:
+            with open(f"saloni/errors/{current_record}.html", 'w', encoding='utf-8') as f:
                 f.write(str(soup))
             
 
