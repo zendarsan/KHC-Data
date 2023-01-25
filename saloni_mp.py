@@ -285,7 +285,7 @@ def process_case_set(case_set):
             row = process(soup, cino)
             row.append(court)
             orders = soup.select("table.order_table tr")
-            if len(orders) == 1:
+            if len(orders) <= 1:
                 orders = []
             elif len(orders)<3:
                 orders = [orders[-1]]
