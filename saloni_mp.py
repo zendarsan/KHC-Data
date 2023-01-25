@@ -269,7 +269,7 @@ def process_case_set(case_set):
         for i in range(5):
             try:
                 page, downloaded = get_case_deets(cino, case_no, court_code, state_code, dist_code)
-                soup = BeautifulSoup(page)
+                soup = BeautifulSoup(page, parser='html.parser')
                 break
             except Exception as e:
                 time.sleep(0.5+i)
@@ -334,7 +334,7 @@ def process_case_set(case_set):
                 csvwriter.writerow(row)
         except Exception as e:      
             fails+=1    
-            print("FAILED", e)
+            print("FAILED", e, row)
             with open(f"{current_record}.html", 'w', encoding='utf-8') as f:
                 f.write(str(soup))
             
