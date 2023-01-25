@@ -3,3 +3,6 @@ output/orders/*.pdf
 output/completed
 completed
 env/
+saloni/*.csv
+saloni/orders/*
+saloni/errors/*
