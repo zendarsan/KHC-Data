@@ -10,6 +10,7 @@ import glob
 import multiprocessing as mp
 import pdfplumber
 import io
+import traceback
 current_record = 0
 current_set = 0
 fails = 0
@@ -334,8 +335,7 @@ def process_case_set(case_set):
                 csvwriter.writerow(row)
         except Exception as e:      
             fails+=1    
-            print("FAILED", e, row)
-            raise e
+            print("FAILED", traceback.format_exc(), '\n',row)
             with open(f"{current_record}.html", 'w', encoding='utf-8') as f:
                 f.write(str(soup))
             
