@@ -297,8 +297,14 @@ def process_case_set(case_set):
                 if not details:
                     continue
                 name = details[-1]
-                query = order.select('a')[0]['href'].replace("  ", '%20')
-                query = query.replace(" ", "%20")
+                
+                query = order.select('a')
+                if query:
+                    query = query[0]['href'].replace("  ", '%20')
+                    query = query.replace(" ", "%20")
+                else:
+                    continue
+
                 if 'judg' not in name.lower():
                     print("NOT JUDGEMENT", name)
                     continue
