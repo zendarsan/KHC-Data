@@ -8,7 +8,8 @@ from urllib.parse import quote
 import json
 import glob
 import multiprocessing as mp
-
+import pdfplumber
+import io
 current_record = 0
 current_set = 0
 fails = 0
@@ -282,10 +283,10 @@ def process_case_set(case_set):
         try:
             row = process(soup, cino)
             row.append(court)
-            orders = soup.select("table.order_table tr")[1:]
-            if len(orders) == 0:
+            orders = soup.select("table.order_table tr")
+            if len(orders) == 1:
                 orders = []
-            elif len(orders)<2:
+            elif len(orders)<3:
                 orders = [orders[-1]]
             else:
                 orders = orders[-2:]
@@ -294,7 +295,6 @@ def process_case_set(case_set):
                 details = [x.get_text().strip() for x in order.select('td')]
                 if not details:
                     continue
-                date = details[-2]
                 name = details[-1]
                 query = order.select('a')[0]['href'].replace("  ", '%20')
                 query = query.replace(" ", "%20")
@@ -335,6 +335,7 @@ def process_case_set(case_set):
         except Exception as e:      
             fails+=1    
             print("FAILED", e, row)
+            raise e
             with open(f"{current_record}.html", 'w', encoding='utf-8') as f:
                 f.write(str(soup))
             
