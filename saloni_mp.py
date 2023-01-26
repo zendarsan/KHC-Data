@@ -358,6 +358,7 @@ def process_case_set(case_set):
 if __name__ == '__main__':
     all_files = glob.glob("saloni/case_list/*.txt")
     all_cases = []
+    counter = 0
     for file in all_files:
         with open(file, 'r') as f:
             if '_Disp' in file:
@@ -366,7 +367,7 @@ if __name__ == '__main__':
                 disp="pending"
 
             x = json.loads(f.read())
-            counter = 0
+            
             for cases, court_code, court in zip(x['con'], x['court_code'], x['courtNameArr']):
                 if(cases and court_code and court):
                     all_cases.append({
