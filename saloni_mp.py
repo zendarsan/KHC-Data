@@ -255,12 +255,12 @@ def process_case_set(case_set):
         orders_csvwriter.writerow(fields) 
 
     orders_filename = f"saloni/extras_{section}_{counter}.csv"
-    orders_csv_file = open(orders_filename,'w', encoding='utf-8', newline='')
+    extras_csv_file = open(orders_filename,'w', encoding='utf-8', newline='')
     extras_csvwriter = csv.writer(orders_csv_file)
     if current_record == 0 and counter==0:
         fields = ['Petitioner','Respondent', "Petitioner Count", "Respondent Count", "Case Type", "CINO", 'Filing Number', 'Filing Year', 'Filing Date', "Registration Number", 'Registration Year','Registration Date', "FIR Number", "Station", "FIR Year", "Provisions Charged", 'Stage','Disposed Date', 'Disposed Year', 'Disposal Reason', "Court", "Extract",]
         extras_csvwriter.writerow(fields) 
-
+    print("starting session")
     ActNodata = {
     'court_codeArr': court_code,
     'state_code': state_code,
@@ -277,7 +277,7 @@ def process_case_set(case_set):
         timeout=5
     )
     headers['Cookie'] = f"PHPSESSID={s.cookies['PHPSESSID']}"
-    
+    print("starting looping")
     for x in range(current_record, len(cases)):
         judgement_flag = False
         order_flag = False
@@ -346,6 +346,7 @@ def process_case_set(case_set):
                     order_name = f"saloni/judgements/{row[3]} of {row[4]}_{name.title()}_{cino}_{index}.pdf"
                 
                 link = f"https://services.ecourts.gov.in/ecourtindia_v4_bilingual/cases/{query}"
+                print("getting cases")
                 doc = get_case_document(link, s)
                 if doc.headers['Content-Type'] == 'application/pdf':
                     with pdfplumber.open(io.BytesIO(doc.content)) as pdf:
@@ -391,6 +392,8 @@ def process_case_set(case_set):
         current_record+=1
     print(f"Processed {current_record} cases")
     csv_file.close()
+    extras_csv_file.close()
+    orders_csv_file.close()
     print(f"Completed {court}, {len(cases)} processed.")
     return(f"Completed {court}, {len(cases)} processed.")
 
@@ -427,7 +430,7 @@ if __name__ == '__main__':
         count+=len(cases)
     print(f"Processing {count} cases total")
 
-    with mp.Pool(processes=6) as pool:
+    with mp.Pool(processes=3) as pool:
         parsed = pool.map(process_case_set, all_cases)
     print(parsed)
     with open("Finished", 'w') as f:
