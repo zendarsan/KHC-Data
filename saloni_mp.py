@@ -285,7 +285,7 @@ def process_case_set(case_set):
         cino = cases[x]['cino']
         case_no = cases[x]['case_no']
         #print(current_record, cino, case_no)
-        for i in range(5):
+        for i in range(3):
             try:
                 page, downloaded = get_case_deets(cino, case_no, court_code, state_code, dist_code, s)
                 soup = BeautifulSoup(page, features="html.parser")
