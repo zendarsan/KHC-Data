@@ -338,12 +338,12 @@ def process_case_set(case_set):
                                 f.write(doc.content)
                         
                 else:
-                    print("No file", doc.headers['Content-Type'], link, headers)
+                    print("No file", doc.headers['Content-Type'], link)
 
             if row != 0 and judgement_flag:
                 print(row)
                 csvwriter.writerow(row)
-                
+
             elif row!=0 and judgement_flag==False:
                 orders_csvwriter.writerow(row)
 
