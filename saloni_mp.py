@@ -289,7 +289,21 @@ def process_case_set(case_set):
             try:
                 page, downloaded = get_case_deets(cino, case_no, court_code, state_code, dist_code, s)
                 soup = BeautifulSoup(page, features="html.parser")
-                break
+                row = process(soup, cino)
+                if isinstance(row, int):
+                        s = requests.session()
+                        response = s.post(
+                            'https://services.ecourts.gov.in/ecourtindia_v4_bilingual/cases/s_actwise_qry.php',
+                            headers=headers,
+                            data=ActNodata,
+                            timeout=5
+                        )
+                        headers['Cookie'] = f"PHPSESSID={s.cookies['PHPSESSID']}"
+                        page, downloaded = get_case_deets(cino, case_no, court_code, state_code, dist_code, s)
+                        soup = BeautifulSoup(page, features="html.parser")
+                        row = process(soup, cino)           
+                else:
+                    break
             except Exception as e:
                 time.sleep(0.5+i)
                 print(e, "Retrying")
@@ -299,7 +313,8 @@ def process_case_set(case_set):
             continue
 
         try:
-            row = process(soup, cino)
+            if isinstance(row, int):
+                continue
             row.append(court)
             orders = soup.select("table.order_table tr")
             if len(orders) <= 1:
