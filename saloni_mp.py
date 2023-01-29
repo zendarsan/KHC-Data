@@ -342,6 +342,7 @@ def process_case_set(case_set):
                                 file_name = f'=hyperlink("{order_name}", {line})'
                                 row.extend([name, file_name])
                         else:
+                            print("NO DNA")
                             with open(f"saloni/extras/{row[3]} of {row[4]}_{name.title()}_{cino}_{index}_NODNA.pdf", 'wb') as f:      
                                 f.write(doc.content)
                         
