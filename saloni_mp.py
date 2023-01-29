@@ -32,14 +32,6 @@ headers = {
     'sec-ch-ua-platform': '"macOS"',
 }
     #Create new session and set cookies by making a request
-ActNodata = {
-'court_codeArr': 1,
-'state_code': 6,
-'dist_code': 26,
-'search_act': '',
-'action_code': 'fillActType',
-
-}
 
 
 def get_case_deets(cino, case_no, court_no, state_code, dist_code, s):
@@ -54,11 +46,16 @@ def get_case_deets(cino, case_no, court_no, state_code, dist_code, s):
       'court_code': court_no
     }
 
-    response = s.post('https://services.ecourts.gov.in/ecourtindia_v4_bilingual/cases/o_civil_case_history.php', headers=headers,data=data)
+    response = s.post('https://services.ecourts.gov.in/ecourtindia_v4_bilingual/cases/o_civil_case_history.php', headers=headers,data=data, timeout=15)
     return (response.content, 0)
 
 def get_case_document(link, s):
-    response = s.get(link, headers=headers)
+    for x in range(2):
+        try:
+            response = s.get(link, headers=headers, timeout=15)
+        except:
+            s = requests.session()
+            s.get(response, headers=headers)
     return (response)
 
 def process(soup, cino):
