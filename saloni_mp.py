@@ -430,4 +430,6 @@ if __name__ == '__main__':
     with mp.Pool(processes=6) as pool:
         parsed = pool.map(process_case_set, all_cases)
     print(parsed)
+    with open("Finished", 'w') as f:
+        f.write("Done")
     
