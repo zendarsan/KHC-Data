@@ -263,9 +263,17 @@ def process_case_set(case_set):
     if current_record == 0 and counter==0:
         fields = ['Petitioner','Respondent', "Petitioner Count", "Respondent Count", "Case Type", "CINO", 'Filing Number', 'Filing Year', 'Filing Date', "Registration Number", 'Registration Year','Registration Date', "FIR Number", "Station", "FIR Year", "Provisions Charged", 'Stage','Disposed Date', 'Disposed Year', 'Disposal Reason', "Court", "Extract",]
         orders_csvwriter.writerow(fields) 
+
+    orders_filename = f"saloni/extras_{section}_{counter}.csv"
+    orders_csv_file = open(orders_filename,'w', encoding='utf-8', newline='')
+    extras_csvwriter = csv.writer(orders_csv_file)
+    if current_record == 0 and counter==0:
+        fields = ['Petitioner','Respondent', "Petitioner Count", "Respondent Count", "Case Type", "CINO", 'Filing Number', 'Filing Year', 'Filing Date', "Registration Number", 'Registration Year','Registration Date', "FIR Number", "Station", "FIR Year", "Provisions Charged", 'Stage','Disposed Date', 'Disposed Year', 'Disposal Reason', "Court", "Extract",]
+        extras_csvwriter.writerow(fields) 
     
     for x in range(current_record, len(cases)):
         judgement_flag = False
+        order_flag = False
         print(f"Processing case {current_record}")
         cino = cases[x]['cino']
         case_no = cases[x]['case_no']
@@ -309,6 +317,7 @@ def process_case_set(case_set):
 
                 if 'judg' not in name.lower():
                     print("NOT JUDGEMENT", name)
+                    order_flag=True
                     order_name = f"saloni/orders/{row[3]} of {row[4]}_{name.title()}_{cino}_{index}.pdf"
                 else:
                     judgement_flag = True
@@ -343,8 +352,12 @@ def process_case_set(case_set):
                 print(row)
                 csvwriter.writerow(row)
 
-            elif row!=0 and judgement_flag==False:
+            elif row != 0 and order_flag:
+                print(row)
                 orders_csvwriter.writerow(row)
+
+            else:
+                extras_csvwriter.writerow(row)
 
         except Exception as e:      
             fails+=1    
