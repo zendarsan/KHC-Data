@@ -257,14 +257,22 @@ def process_case_set(case_set):
     current_record = 0
     print(f"Starting {court}, {len(cases)} pending, {fails} failed so far. Set {current_set} of {len(all_cases)}")
 
-    filename = f"saloni/{section}_{counter}.csv"
+    filename = f"saloni/judgements_{section}_{counter}.csv"
     csv_file = open(filename,'w', encoding='utf-8', newline='')
     csvwriter = csv.writer(csv_file)
     if current_record == 0 and counter==0:
         fields = ['Petitioner','Respondent', "Petitioner Count", "Respondent Count", "Case Type", "CINO", 'Filing Number', 'Filing Year', 'Filing Date', "Registration Number", 'Registration Year','Registration Date', "FIR Number", "Station", "FIR Year", "Provisions Charged", 'Stage','Disposed Date', 'Disposed Year', 'Disposal Reason', "Court", "Extract",]
         csvwriter.writerow(fields) 
     
+    orders_filename = f"saloni/orders_{section}_{counter}.csv"
+    orders_csv_file = open(orders_filename,'w', encoding='utf-8', newline='')
+    orders_csvwriter = csv.writer(orders_csv_file)
+    if current_record == 0 and counter==0:
+        fields = ['Petitioner','Respondent', "Petitioner Count", "Respondent Count", "Case Type", "CINO", 'Filing Number', 'Filing Year', 'Filing Date', "Registration Number", 'Registration Year','Registration Date', "FIR Number", "Station", "FIR Year", "Provisions Charged", 'Stage','Disposed Date', 'Disposed Year', 'Disposal Reason', "Court", "Extract",]
+        orders_csvwriter.writerow(fields) 
+    
     for x in range(current_record, len(cases)):
+        judgement_flag = False
         print(f"Processing case {current_record}")
         cino = cases[x]['cino']
         case_no = cases[x]['case_no']
@@ -308,10 +316,12 @@ def process_case_set(case_set):
 
                 if 'judg' not in name.lower():
                     print("NOT JUDGEMENT", name)
-                    continue
-                link = f"https://services.ecourts.gov.in/ecourtindia_v4_bilingual/cases/{query}"
+                    order_name = f"saloni/orders/{row[3]} of {row[4]}_{name.title()}_{cino}_{index}.pdf"
+                else:
+                    judgement_flag = True
+                    order_name = f"saloni/judgements/{row[3]} of {row[4]}_{name.title()}_{cino}_{index}.pdf"
                 
-                order_name = f"saloni/orders/{row[3]} of {row[4]}_{name.title()}_{cino}_{index}.pdf"
+                link = f"https://services.ecourts.gov.in/ecourtindia_v4_bilingual/cases/{query}"
                 doc = get_case_document(link)
                 if doc.headers['Content-Type'] == 'application/pdf':
                     with pdfplumber.open(io.BytesIO(doc.content)) as pdf:
@@ -330,24 +340,25 @@ def process_case_set(case_set):
                                 file_name = f'=hyperlink("{order_name}", {line})'
                                 row.extend([name, file_name])
                         else:
-                            with open(f"saloni/extras/{row[3]} of {row[4]}_{name.title()}_{cino}_{index}.pdf", 'wb') as f:      
+                            with open(f"saloni/extras/{row[3]} of {row[4]}_{name.title()}_{cino}_{index}_NODNA.pdf", 'wb') as f:      
                                 f.write(doc.content)
-
-
                         
                 else:
                     print("No file", doc.headers['Content-Type'])
 
-            if row != 0:
+            if row != 0 and judgement_flag:
                 print(row)
                 csvwriter.writerow(row)
+                
+            elif row!=0 and judgement_flag==False:
+                orders_csvwriter.writerow(row)
+
         except Exception as e:      
             fails+=1    
             print("FAILED", traceback.format_exc(), '\n',row)
             with open(f"saloni/errors/{current_record}.html", 'w', encoding='utf-8') as f:
                 f.write(str(soup))
             
-
         current_record+=1
     print(f"Processed {current_record} cases")
     csv_file.close()
