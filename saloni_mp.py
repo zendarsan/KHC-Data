@@ -21,7 +21,6 @@ headers = {
     'Accept-Language': 'en-GB,en;q=0.9',
     'Cache-Control': 'max-age=0',
     'Connection': 'keep-alive',
-    'Cookie': 'PHPSESSID=ttr91g01nhjtri2esr51va61pc',
     'Sec-Fetch-Dest': 'document',
     'Sec-Fetch-Mode': 'navigate',
     'Sec-Fetch-Site': 'none',
