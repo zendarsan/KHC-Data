@@ -346,7 +346,7 @@ def process_case_set(case_set):
                             print(f"DNA FOUND, {line}")
                             with open(order_name, 'wb') as f:      
                                 f.write(doc.content)
-                                file_name = f'=hyperlink("{order_name}", {line})'
+                                file_name = f'=hyperlink("{order_name}", "{line}")'
                                 row.extend([name, file_name])
                         else:
                             print("NO DNA")
