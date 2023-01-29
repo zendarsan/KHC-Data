@@ -16,29 +16,42 @@ current_record = 0
 current_set = 0
 fails = 0
 
+headers = {
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+    'Accept-Language': 'en-GB,en;q=0.9',
+    'Cache-Control': 'max-age=0',
+    'Connection': 'keep-alive',
+    'Cookie': 'PHPSESSID=ttr91g01nhjtri2esr51va61pc',
+    'Sec-Fetch-Dest': 'document',
+    'Sec-Fetch-Mode': 'navigate',
+    'Sec-Fetch-Site': 'none',
+    'Sec-Fetch-User': '?1',
+    'Upgrade-Insecure-Requests': '1',
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36',
+    'sec-ch-ua': '"Not_A Brand";v="99", "Google Chrome";v="109", "Chromium";v="109"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"macOS"',
+}
+    #Create new session and set cookies by making a request
+ActNodata = {
+'court_codeArr': 1,
+'state_code': 6,
+'dist_code': 26,
+'search_act': '',
+'action_code': 'fillActType',
 
-s = requests.Session()
-cookie = 'PHPSESSID=c8hcufru9lt9puq06ct3map455'
+}
+s = requests.session()
+response = s.post(
+    'https://services.ecourts.gov.in/ecourtindia_v4_bilingual/cases/s_actwise_qry.php',
+    headers=headers,
+    data=ActNodata,
+    timeout=5
+)
+headers['Cookie'] = f"PHPSESSID={s.cookies['PHPSESSID']}"
+
 def get_case_deets(cino, case_no, court_no, state_code, dist_code):
     
-    headers = {
-        'Connection': 'keep-alive',
-        'sec-ch-ua': '" Not;A Brand";v="99", "Microsoft Edge";v="97", "Chromium";v="97"',
-        'DNT': '1',
-        'sec-ch-ua-mobile': '?0',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36 Edg/97.0.1072.55',
-        'sec-ch-ua-platform': '"Windows"',
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': '*/*',
-        'Origin': 'https://services.ecourts.gov.in',
-        'Sec-Fetch-Site': 'same-origin',
-        'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Dest': 'empty',
-        'Referer': 'https://services.ecourts.gov.in/',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Cookie': cookie
-    }
-
     data = {
       '__csrf_magic': 'sid:22e25a4a3b8a2c3dd3a08f8c43e207354a236ed2,1641670946',
       'state_code': state_code,
@@ -53,25 +66,6 @@ def get_case_deets(cino, case_no, court_no, state_code, dist_code):
     return (response.content, 0)
 
 def get_case_document(link):
-
-    headers = {
-        'Connection': 'keep-alive',
-        'sec-ch-ua': '" Not;A Brand";v="99", "Microsoft Edge";v="97", "Chromium";v="97"',
-        'DNT': '1',
-        'sec-ch-ua-mobile': '?0',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36 Edg/97.0.1072.55',
-        'sec-ch-ua-platform': '"Windows"',
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': '*/*',
-        'Origin': 'https://services.ecourts.gov.in',
-        'Sec-Fetch-Site': 'same-origin',
-        'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Dest': 'empty',
-        'Referer': 'https://services.ecourts.gov.in/',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Cookie': cookie
-
-    }
     response = s.get(link, headers=headers)
     return (response)
 
@@ -344,7 +338,7 @@ def process_case_set(case_set):
                                 f.write(doc.content)
                         
                 else:
-                    print("No file", doc.headers['Content-Type'])
+                    print("No file", doc.headers['Content-Type'], link, headers)
 
             if row != 0 and judgement_flag:
                 print(row)
@@ -367,6 +361,7 @@ def process_case_set(case_set):
 
 
 if __name__ == '__main__':
+
     all_files = glob.glob("saloni/case_list/*.txt")
     all_cases = []
     counter = 0
