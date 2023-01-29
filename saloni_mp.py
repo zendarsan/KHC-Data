@@ -269,14 +269,42 @@ def process_case_set(case_set):
     'action_code': 'fillActType',
 
     }
-    s = requests.session()
-    response = s.post(
-        'https://services.ecourts.gov.in/ecourtindia_v4_bilingual/cases/s_actwise_qry.php',
-        headers=headers,
-        data=ActNodata,
-        timeout=5
-    )
-    headers['Cookie'] = f"PHPSESSID={s.cookies['PHPSESSID']}"
+    try:
+        s = requests.session()
+        response = s.post(
+            'https://services.ecourts.gov.in/ecourtindia_v4_bilingual/cases/s_actwise_qry.php',
+            headers=headers,
+            data=ActNodata,
+            timeout=5
+        )
+        headers['Cookie'] = f"PHPSESSID={s.cookies['PHPSESSID']}"
+    except KeyError:
+        headers = {
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+            'Accept-Language': 'en-GB,en;q=0.9',
+            'Cache-Control': 'max-age=0',
+            'Connection': 'keep-alive',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Sec-Fetch-User': '?1',
+            'Upgrade-Insecure-Requests': '1',
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36',
+            'sec-ch-ua': '"Not_A Brand";v="99", "Google Chrome";v="109", "Chromium";v="109"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': '"macOS"',
+        }
+        response = s.post(
+    'https://services.ecourts.gov.in/ecourtindia_v4_bilingual/cases/s_actwise_qry.php',
+    headers=headers,
+    data=ActNodata,
+    timeout=25
+)
+        if 'PHPSESSID' in s.cookies:
+            headers['Cookie'] = f"PHPSESSID={s.cookies['PHPSESSID']}"
+        else:
+            headers['Cookie'] = f"PHPSESSID=19n3gd8bgj14n85ekeu5ifhtlu"
+
     print("starting looping")
     for x in range(current_record, len(cases)):
         judgement_flag = False
@@ -430,7 +458,7 @@ if __name__ == '__main__':
         count+=len(cases)
     print(f"Processing {count} cases total")
 
-    with mp.Pool(processes=3) as pool:
+    with mp.Pool(processes=4) as pool:
         parsed = pool.map(process_case_set, all_cases)
     print(parsed)
     with open("Finished", 'w') as f:
