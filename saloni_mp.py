@@ -279,7 +279,7 @@ def process_case_set(case_set):
         )
         headers['Cookie'] = f"PHPSESSID={s.cookies['PHPSESSID']}"
     except KeyError:
-        headers = {
+        newheaders = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
             'Accept-Language': 'en-GB,en;q=0.9',
             'Cache-Control': 'max-age=0',
@@ -296,7 +296,7 @@ def process_case_set(case_set):
         }
         response = s.post(
     'https://services.ecourts.gov.in/ecourtindia_v4_bilingual/cases/s_actwise_qry.php',
-    headers=headers,
+    headers=newheaders,
     data=ActNodata,
     timeout=25
 )
@@ -458,7 +458,7 @@ if __name__ == '__main__':
         count+=len(cases)
     print(f"Processing {count} cases total")
 
-    with mp.Pool(processes=4) as pool:
+    with mp.Pool(processes=3) as pool:
         parsed = pool.map(process_case_set, all_cases)
     print(parsed)
     with open("Finished", 'w') as f:
