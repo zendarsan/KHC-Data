@@ -40,16 +40,9 @@ ActNodata = {
 'action_code': 'fillActType',
 
 }
-s = requests.session()
-response = s.post(
-    'https://services.ecourts.gov.in/ecourtindia_v4_bilingual/cases/s_actwise_qry.php',
-    headers=headers,
-    data=ActNodata,
-    timeout=5
-)
-headers['Cookie'] = f"PHPSESSID={s.cookies['PHPSESSID']}"
 
-def get_case_deets(cino, case_no, court_no, state_code, dist_code):
+
+def get_case_deets(cino, case_no, court_no, state_code, dist_code, s):
     
     data = {
       '__csrf_magic': 'sid:22e25a4a3b8a2c3dd3a08f8c43e207354a236ed2,1641670946',
@@ -64,7 +57,7 @@ def get_case_deets(cino, case_no, court_no, state_code, dist_code):
     response = s.post('https://services.ecourts.gov.in/ecourtindia_v4_bilingual/cases/o_civil_case_history.php', headers=headers,data=data)
     return (response.content, 0)
 
-def get_case_document(link):
+def get_case_document(link, s):
     response = s.get(link, headers=headers)
     return (response)
 
@@ -270,6 +263,23 @@ def process_case_set(case_set):
     if current_record == 0 and counter==0:
         fields = ['Petitioner','Respondent', "Petitioner Count", "Respondent Count", "Case Type", "CINO", 'Filing Number', 'Filing Year', 'Filing Date', "Registration Number", 'Registration Year','Registration Date', "FIR Number", "Station", "FIR Year", "Provisions Charged", 'Stage','Disposed Date', 'Disposed Year', 'Disposal Reason', "Court", "Extract",]
         extras_csvwriter.writerow(fields) 
+
+    ActNodata = {
+    'court_codeArr': court_code,
+    'state_code': state_code,
+    'dist_code': dist_code,
+    'search_act': '',
+    'action_code': 'fillActType',
+
+    }
+    s = requests.session()
+    response = s.post(
+        'https://services.ecourts.gov.in/ecourtindia_v4_bilingual/cases/s_actwise_qry.php',
+        headers=headers,
+        data=ActNodata,
+        timeout=5
+    )
+    headers['Cookie'] = f"PHPSESSID={s.cookies['PHPSESSID']}"
     
     for x in range(current_record, len(cases)):
         judgement_flag = False
@@ -280,7 +290,7 @@ def process_case_set(case_set):
         #print(current_record, cino, case_no)
         for i in range(5):
             try:
-                page, downloaded = get_case_deets(cino, case_no, court_code, state_code, dist_code)
+                page, downloaded = get_case_deets(cino, case_no, court_code, state_code, dist_code, s)
                 soup = BeautifulSoup(page, features="html.parser")
                 break
             except Exception as e:
@@ -324,7 +334,7 @@ def process_case_set(case_set):
                     order_name = f"saloni/judgements/{row[3]} of {row[4]}_{name.title()}_{cino}_{index}.pdf"
                 
                 link = f"https://services.ecourts.gov.in/ecourtindia_v4_bilingual/cases/{query}"
-                doc = get_case_document(link)
+                doc = get_case_document(link, s)
                 if doc.headers['Content-Type'] == 'application/pdf':
                     with pdfplumber.open(io.BytesIO(doc.content)) as pdf:
                         texts = []
